@@ -2492,6 +2492,7 @@ tests:
   steps:
     cluster_profile: equinix-ocp-metal-qe
     env:
+      SCALE_UPI: "true"
       ADDITIONAL_WORKER_ARCHITECTURE: x86_64
       ADDITIONAL_WORKERS: "1"
       ADDITIONAL_WORKERS_DAY2: "true"
