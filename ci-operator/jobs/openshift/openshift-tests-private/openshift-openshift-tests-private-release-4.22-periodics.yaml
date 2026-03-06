@@ -35285,7 +35285,7 @@ periodics:
       secret:
         secretName: result-aggregator
 - agent: kubernetes
-  cluster: build06
+  cluster: build05
   cron: 46 21 9,25 * *
   decorate: true
   decoration_config:
@@ -35376,7 +35376,7 @@ periodics:
       secret:
         secretName: result-aggregator
 - agent: kubernetes
-  cluster: build06
+  cluster: build05
   cron: 3 13 6,15,22,29 * *
   decorate: true
   decoration_config:
@@ -35922,7 +35922,7 @@ periodics:
       secret:
         secretName: result-aggregator
 - agent: kubernetes
-  cluster: build06
+  cluster: build05
   cron: 20 13 4,13,20,27 * *
   decorate: true
   decoration_config:
