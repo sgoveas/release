@@ -20,13 +20,13 @@ architecture="${architecture:-amd64}"
 # Check for mixed architecture scenarios
 case "${architecture}" in
   "amd64")
-    if [ "${ADDITIONAL_WORKER_ARCHITECTURE}" != "x86_64" ] && [ -n "${ADDITIONAL_WORKER_ARCHITECTURE}" ]; then
+    if  [ -n "${ADDITIONAL_WORKER_ARCHITECTURE}" ] && [ "${ADDITIONAL_WORKER_ARCHITECTURE}" != "x86_64" ]; then
         echo "Error: Mixed architecture cluster (${architecture} with ${ADDITIONAL_WORKER_ARCHITECTURE} worker) is not supported. Exiting."
         exit 1
     fi
     ;;
   "arm64")
-    if [ "${ADDITIONAL_WORKER_ARCHITECTURE}" != "aarch64" ] && [ -n "${ADDITIONAL_WORKER_ARCHITECTURE}" ]; then
+    if [ -n "${ADDITIONAL_WORKER_ARCHITECTURE}" ] && [ "${ADDITIONAL_WORKER_ARCHITECTURE}" != "aarch64" ]; then
         echo "Error: Mixed architecture cluster (${architecture} with ${ADDITIONAL_WORKER_ARCHITECTURE} worker) is not supported. Exiting."
         exit 1
     fi
@@ -44,7 +44,10 @@ ocp_major=$(echo "${ocp_version}" | cut -d. -f1)
 ocp_minor=$(echo "${ocp_version}" | cut -d. -f2)
 
 # Use v1beta2 for OpenShift 4.22+, v1beta1 for earlier versions
-if [[ "${ocp_major}" -eq 4 ]] && [[ "${ocp_minor}" -ge 22 ]]; then
+if [[ "${ocp_major}" -ge 5 ]]; then
+  capi_api_version="v1beta2"
+  use_legacy_status_path=false
+elif [[ "${ocp_major}" -eq 4 ]] && [[ "${ocp_minor}" -ge 22 ]]; then
   capi_api_version="v1beta2"
   use_legacy_status_path=false
 else
@@ -107,7 +110,7 @@ echo "--- Waiting for CAPI baremetalhosts to be available ---"
 sleep 480
 for bmhname in "${bmhlist[@]}"; do
   while ! oc get baremetalhost "${bmhname}" -n "${capi_namespace}" -o=jsonpath='{.status.provisioning.state}{"\n"}' | grep available; do
-    echo "Baremetalhost ${bmhname} is not provisioned. Waiting 30 seconds..."
+    echo "Baremetalhost ${bmhname} is not available. Waiting 30 seconds..."
     sleep 30
   done
 done
@@ -167,7 +170,7 @@ more "${DIR}"/*.yaml |& sed 's/pass.*$/pass ** HIDDEN **/g'
 
 oc create -f "${DIR}/Metal3MachineTemplate.yaml"
 oc create -f "${DIR}/Metal3MachineSet.yaml"
-sleep 5
+sleep 3600
 
 if oc get baremetalhost -n "${capi_namespace}" | grep "provisioning"; then
   [ "${replicas}" -gt 1 ] && echo "--- Scale replicas ---" && \
