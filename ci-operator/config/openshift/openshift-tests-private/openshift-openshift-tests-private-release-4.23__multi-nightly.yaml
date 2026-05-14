@@ -1,0 +1,132 @@
+base_images:
+  aws-efs-csi-operator-create-efs:
+    name: "4.23"
+    namespace: ocp
+    tag: aws-efs-csi-operator-create-efs
+  cli:
+    name: "4.23"
+    namespace: ocp
+    tag: cli
+  cluster-api-actuator-pkg-test:
+    name: cluster-api-actuator-pkg-test
+    namespace: ci
+    tag: "4.23"
+  dev-scripts:
+    name: test
+    namespace: ocp-kni
+    tag: dev-scripts
+  hypershift-operator:
+    name: hypershift-operator
+    namespace: hypershift
+    tag: latest
+  hypershift-tests:
+    name: hypershift-tests
+    namespace: hypershift
+    tag: latest
+  operator-sdk:
+    name: "4.23"
+    namespace: origin
+    tag: operator-sdk
+  operator-sdk-mto:
+    name: operator-sdk-mto
+    namespace: origin
+    tag: main
+  tests-private:
+    name: tests-private
+    namespace: ci
+    tag: "4.23"
+  tests-private-ui:
+    name: tests-private-ui
+    namespace: ci
+    tag: "4.23"
+  tools:
+    name: "4.23"
+    namespace: ocp
+    tag: tools
+  upi-installer:
+    name: "4.23"
+    namespace: ocp
+    tag: upi-installer
+prowgen:
+  expose: true
+  private: true
+releases:
+  arm64-latest:
+    candidate:
+      architecture: arm64
+      product: ocp
+      stream: nightly
+      version: "4.23"
+  latest:
+    candidate:
+      architecture: multi
+      product: ocp
+      stream: nightly
+      version: "4.23"
+resources:
+  '*':
+    limits:
+      memory: 8Gi
+    requests:
+      cpu: "1"
+      memory: 1Gi
+tests:
+- as: metal-ipi-ovn-ipv4-rhcos10-worker-tp-amd-f7
+  capabilities:
+  - intranet
+  cron: 15 14 4,11,18,25 * *
+  steps:
+    cluster_profile: equinix-ocp-metal-qe
+    env:
+      AUX_HOST: openshift-qe-metal-ci.arm.eng.rdu2.redhat.com
+      DISCONNECTED: "false"
+      FEATURE_SET: TechPreviewNoUpgrade
+      RESERVE_BOOTSTRAP: "false"
+      WORKER_COREOS_STREAM: rhel-10
+      architecture: amd64
+      masters: "3"
+      workers: "2"
+    test:
+    - chain: openshift-e2e-test-qe
+    workflow: baremetal-lab-ipi
+- as: metal-ipi-ovn-ipv4-rhcos10-worker-tp-arm-f7
+  capabilities:
+  - intranet
+  cron: 11 21 7,16,23,30 * *
+  steps:
+    cluster_profile: equinix-ocp-metal-qe
+    env:
+      AUX_HOST: openshift-qe-metal-ci.arm.eng.rdu2.redhat.com
+      DISCONNECTED: "false"
+      FEATURE_SET: TechPreviewNoUpgrade
+      RESERVE_BOOTSTRAP: "false"
+      WORKER_COREOS_STREAM: rhel-10
+      architecture: arm64
+      masters: "3"
+      workers: "2"
+    test:
+    - chain: openshift-e2e-test-qe
+    workflow: baremetal-lab-ipi
+- as: metal-ipi-ovn-ipv4-vmedia-rhcos10-worker-tp-arm-f7
+  capabilities:
+  - intranet
+  cron: 17 18 4,11,18,25 * *
+  steps:
+    cluster_profile: equinix-ocp-metal-qe
+    env:
+      AUX_HOST: openshift-qe-metal-ci.arm.eng.rdu2.redhat.com
+      DISCONNECTED: "false"
+      FEATURE_SET: TechPreviewNoUpgrade
+      RESERVE_BOOTSTRAP: "false"
+      WORKER_COREOS_STREAM: rhel-10
+      architecture: arm64
+      masters: "3"
+      workers: "2"
+    test:
+    - ref: openshift-extended-test-disruptive
+    workflow: baremetal-lab-ipi-virtual-media
+zz_generated_metadata:
+  branch: release-4.23
+  org: openshift
+  repo: openshift-tests-private
+  variant: multi-nightly
